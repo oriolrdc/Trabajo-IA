@@ -66,5 +66,5 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "IAJavier-main.sln"
+    "dotnet.defaultSolution": "Trabajo-IA.sln"
 }
