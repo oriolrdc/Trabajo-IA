@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
-
+using System.Collections;
 
 
 public class Enemy : MonoBehaviour
@@ -21,8 +21,8 @@ public class Enemy : MonoBehaviour
     Vector3 _playerLastPositionKnown;
     [SerializeField] private float _detectionAngle = 90f;
 
-    private float _timer;
-    private float _Wai;
+    int _counter = 0;
+    bool _isWaiting;
 
 
     void Awake()
@@ -50,6 +50,7 @@ public class Enemy : MonoBehaviour
 
     void Start()
     {
+        _counter = 0;
         currentState = EnemyState.Patrolling;
         PatrolInOrder();
     }
@@ -78,7 +79,7 @@ public class Enemy : MonoBehaviour
 
             case EnemyState.Waiting:
 
-                Waiting();
+                StartCoroutine(Waiting());
 
             break;
 
@@ -110,12 +111,15 @@ public class Enemy : MonoBehaviour
     }
     void Chase()
     {
-        if(!OnRange())
+        if(Vector3.Distance(transform.position, _player.position) < 0.3f)
+        {
+            currentState = EnemyState.Attacking;
+        }
+        else if(!OnRange())
         {
             currentState = EnemyState.Searching;
         }
         _enemyAgent.SetDestination(_player.position);
-
         _playerLastPositionKnown = _player.position;
     }
 
@@ -146,19 +150,40 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void Waiting()
+    IEnumerator Waiting()
     {
-
+        if(_isWaiting)
+        {
+            _isWaiting = false;
+            if(_counter >= _patrolPoints.Length - 1)
+            {
+                _counter = 0;
+            }
+            else
+            {
+                _counter++;
+            }
+            Debug.Log(_counter);
+            yield return new WaitForSeconds(5);
+            currentState = EnemyState.Patrolling;
+            _isWaiting = true;
+        }
     }
 
     void Attacking()
     {
-
+        Debug.Log("Attack");
     }
 
     void PatrolInOrder()
     {
-        _enemyAgent.SetDestination(_StarterPoint.position);
+        _enemyAgent.SetDestination(_patrolPoints[_counter].position);
+        
+        if(!_enemyAgent.pathPending && _enemyAgent.remainingDistance < 0.1f)
+        {
+            _isWaiting = true;
+            currentState = EnemyState.Waiting;
+        }
     }
 
     bool RandomSearchPoint(Vector3 center, float radius, out Vector3 point)
@@ -191,6 +216,7 @@ public class Enemy : MonoBehaviour
             return false;
         }*/
         Vector3 directionToPlayer = _player.position - transform.position;
+        Debug.Log("holis");
         float angleToPlayer = Vector3.Angle(transform.forward, directionToPlayer);
         float distanceToPlayer = Vector3.Distance(transform.position, _player.position);
 
