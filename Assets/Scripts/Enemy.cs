@@ -23,7 +23,8 @@ public class Enemy : MonoBehaviour
 
     int _counter = 0;
     bool _isWaiting;
-
+    float _attackRange = 1;
+    bool _canAttack;
 
     void Awake()
     {
@@ -51,6 +52,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         _counter = 0;
+        _canAttack = true;
         currentState = EnemyState.Patrolling;
         PatrolInOrder();
     }
@@ -86,7 +88,7 @@ public class Enemy : MonoBehaviour
             case EnemyState.Attacking:
 
                 
-                Attacking();
+                StartCoroutine(Attacking());
                 
             break;
 
@@ -111,7 +113,7 @@ public class Enemy : MonoBehaviour
     }
     void Chase()
     {
-        if(Vector3.Distance(transform.position, _player.position) < 0.3f)
+        if(Vector3.Distance(transform.position, _player.position) <= _attackRange)
         {
             currentState = EnemyState.Attacking;
         }
@@ -170,9 +172,16 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    void Attacking()
+    IEnumerator Attacking()
     {
-        Debug.Log("Attack");
+        if(_canAttack)
+        {
+            _canAttack = false;
+            Debug.Log("Attack");
+            yield return new WaitForSeconds(2);
+            currentState = EnemyState.Chasing;
+            _canAttack = true;
+        }
     }
 
     void PatrolInOrder()
