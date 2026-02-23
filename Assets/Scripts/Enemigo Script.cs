@@ -3,7 +3,9 @@ using UnityEngine.AI;
 using System.Collections;
 
 public class EnemigoScript : MonoBehaviour
-{
+{   
+    #region Variables
+
     private NavMeshAgent _enemyAgent;
     private Transform _player;
     
@@ -14,8 +16,11 @@ public class EnemigoScript : MonoBehaviour
 
     float attackTimer;
     float attackDelay = 2;
+    int _patrolIndex = 0;
 
+    #endregion
     #region Awake
+
     void Awake()
     {
         _enemyAgent = GetComponent<NavMeshAgent>();
@@ -65,7 +70,6 @@ public class EnemigoScript : MonoBehaviour
 
             case EnemyState.Attacking:
 
-                
                 Attacking();
                 
             break;
@@ -113,7 +117,7 @@ public class EnemigoScript : MonoBehaviour
     
     void Patrol() //funcion oficial para examen Patrol
     {
-        if(OnRange()) //necesario para que te detecte en todos los estados
+        if(OnRange(_detectionRange)) //necesario para que te detecte en todos los estados
         {
             currentState = EnemyState.Chasing; //cambia de estado a chasing
         }
@@ -126,7 +130,7 @@ public class EnemigoScript : MonoBehaviour
     void PatrolInOrder()
     {
         _enemyAgent.SetDestination(_patrolPoints[_patrolIndex].position); //le asigna el siguiente punto al enemigo
-        _patrolIndex = (_patrolIndex + 1) % _patrolPoints.Lenght; //le suma 1 al controlador de indices para que el siguiente no sea el mismo
+        _patrolIndex = (_patrolIndex + 1) % _patrolPoints.Length; //le suma 1 al controlador de indices para que el siguiente no sea el mismo
     }
     
     #endregion
@@ -149,7 +153,7 @@ public class EnemigoScript : MonoBehaviour
     #endregion
     #region Attack
 
-    void Attack()
+    void Attacking()
     {
         if(!OnRange(_attackRange)) 
         {
