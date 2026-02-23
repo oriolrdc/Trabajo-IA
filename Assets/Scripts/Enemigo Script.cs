@@ -12,7 +12,7 @@ public class EnemigoScript : MonoBehaviour
     [SerializeField] private Transform[] _patrolPoints;
     public EnemyState currentState;
 
-    float attackTimer
+    float attackTimer;
     float attackDelay = 2;
 
     #region Awake
